@@ -21,6 +21,31 @@ var pressLeft = false;
 
 var interval = setInterval(draw, 10);
 
+//set brick variables
+    //Thsi is what the array will hold
+var brickRowCount = 3;
+var brickColumnCount = 5;
+//This will set the CSS parameters for each brick
+var brickWidth = 75;
+var brickHeight = 20;
+var brickPadding = 10;
+var brickOffsetTop = 30;
+var brickOffsetLeft = 30;
+
+//set bricks to an array
+    //iterate through the array to create new bricks and used for collision detection
+var bricks = [];
+for(var c=0; c<brickColumnCount; c++) {
+    bricks[c] = [];
+    for(var r=0; r<brickRowCount; r++) {
+        bricks[c][r] = { x: 0, y: 0 };
+    }
+}
+
+
+
+
+
 //create a function that redraws the ball
     //setInterval controls the speed the ball is redrawn or moves
 function drawBall() {
@@ -42,10 +67,29 @@ function drawPaddle() {
     
 }
 
+//create a function to draw the bricks
+    //sets the x/y position for each brick
+    function drawBricks() {
+        for(var c=0; c<brickColumnCount; c++) {
+            for(var r=0; r<brickRowCount; r++) {
+                var brickX = (c*(brickWidth+brickPadding)) + brickOffsetLeft;
+                var brickY = (r*(brickHeight+brickPadding)) + brickOffsetTop;
+                bricks[c][r].x = 0;
+                bricks[c][r].y = 0;
+                ctx.beginPath();
+                ctx.rect(0, 0, brickWidth, brickHeight);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+    }
+
 //create a draw function that works with the canvas parameters to keep the ball in the playing field
     //clearRect cleans up any trails left by redrawing the ball
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBricks();
     drawBall();
     drawPaddle();
 
