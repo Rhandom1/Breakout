@@ -19,7 +19,7 @@ var paddleX = (canvas.width-paddleWidth) /2;
 var pressRight = false;
 var pressLeft = false;
 
-var interval = setInterval(draw, 10);
+var lives = 3;
 
 //set brick variables
     //Thsi is what the array will hold
@@ -46,6 +46,15 @@ for(var c=0; c<brickColumnCount; c++) {
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+document.addEventListener("mousemove", mouseMoveHandler, false);
+
+function mouseMoveHandler(e) {
+    var relativeX = e.clientX - canvas.offsetLeft;
+    if(relativeX > 0 && relativeX < canvas.width) {
+        paddleX = relativeX - paddleWidth/2;
+    }
+}
+
 
 // "e" for event but can be anything
 function keyDownHandler(e) {
@@ -67,6 +76,7 @@ function keyUpHandler(e) {
 }
 
 //Create a function for when the ball hits a brick
+    //add scoring and win message
 function collisionDetection() {
     for(var c=0; c<brickColumnCount; c++) {
         for(var r=0; r<brickRowCount; r++) {
@@ -75,11 +85,35 @@ function collisionDetection() {
                 if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
                     dy = -dy;
                     b.status = 0;
+                    score++;
+                    if(score == brickRowCount*brickColumnCount) {
+                        alert("YOU WIN!");
+                        document.location.reload();
+                        
+                    }
                 }
             }
         }
     }
 }
+
+
+//create a score function
+var score = 0;
+
+function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    //param1 is the text to display, param2-3 are the cooridinates
+    ctx.fillText("Score: " +score, 8, 20);
+}
+
+function drawLives() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Lives: "+lives, canvas.width-65, 20);
+}
+
 
 //create a function that redraws the ball
     //setInterval controls the speed the ball is redrawn or moves
@@ -131,6 +165,8 @@ function draw() {
     drawBricks();
     drawBall();
     drawPaddle();
+    drawScore();
+    drawLives();
     collisionDetection();
 
     if(y + dy > canvas.height || y + dy < 0) {
@@ -148,9 +184,19 @@ function draw() {
             dy = -dy;
         }
         else {
-            alert("GAME OVER");
-            document.location.reload();
-            clearInterval(interval);
+            lives--;
+            if(!lives) {
+                alert("GAME OVER");
+                document.location.reload();
+            }
+            else {
+                x = canvas.width/2;
+                y = canvas.height-30;
+                dx = 2;
+                dy = -2;
+                paddleX = (canvas.width-paddleWidth)/2;
+            }
+
         }
     }
     
@@ -171,7 +217,9 @@ function draw() {
 
     x += dx;
     y += dy;
+    requestAnimationFrame(draw);
 }
 
+draw();
 
 
