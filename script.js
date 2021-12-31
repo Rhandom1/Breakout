@@ -38,13 +38,48 @@ var bricks = [];
 for(var c=0; c<brickColumnCount; c++) {
     bricks[c] = [];
     for(var r=0; r<brickRowCount; r++) {
-        bricks[c][r] = { x: 0, y: 0 };
+        bricks[c][r] = { x: 0, y: 0, status: 1 };
     }
 }
 
+//event handlers for moving the paddle left or right
 
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
 
+// "e" for event but can be anything
+function keyDownHandler(e) {
+    if(e.key == "Right" || e.key == "ArrowRight") {
+        pressRight = true;
+    }
+    else if(e.key == "Left" || e.key == "ArrowLeft") {
+        pressLeft = true;
+    }
+}
 
+function keyUpHandler(e) {
+    if(e.key == "Right" || e.key == "ArrowRight") {
+        pressRight = false;
+    }
+    else if(e.key == "Left" || e.key == "ArrowLeft") {
+        pressLeft = false;
+    }
+}
+
+//Create a function for when the ball hits a brick
+function collisionDetection() {
+    for(var c=0; c<brickColumnCount; c++) {
+        for(var r=0; r<brickRowCount; r++) {
+            var b = bricks[c][r];
+            if(b.status == 1) {
+                if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                    dy = -dy;
+                    b.status = 0;
+                }
+            }
+        }
+    }
+}
 
 //create a function that redraws the ball
     //setInterval controls the speed the ball is redrawn or moves
@@ -69,21 +104,25 @@ function drawPaddle() {
 
 //create a function to draw the bricks
     //sets the x/y position for each brick
-    function drawBricks() {
-        for(var c=0; c<brickColumnCount; c++) {
-            for(var r=0; r<brickRowCount; r++) {
-                var brickX = (c*(brickWidth+brickPadding)) + brickOffsetLeft;
-                var brickY = (r*(brickHeight+brickPadding)) + brickOffsetTop;
-                bricks[c][r].x = 0;
-                bricks[c][r].y = 0;
+function drawBricks() {
+    for (var c = 0; c < brickColumnCount; c++) {
+        for (var r = 0; r < brickRowCount; r++) {
+            if (bricks[c][r].status == 1) {
+                var brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                var brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                bricks[c][r].x = brickX;
+                bricks[c][r].y = brickY;
                 ctx.beginPath();
-                ctx.rect(0, 0, brickWidth, brickHeight);
+                ctx.rect(brickX, brickY, brickWidth, brickHeight);
                 ctx.fillStyle = "#0095DD";
                 ctx.fill();
                 ctx.closePath();
             }
         }
     }
+}
+
+    
 
 //create a draw function that works with the canvas parameters to keep the ball in the playing field
     //clearRect cleans up any trails left by redrawing the ball
@@ -92,6 +131,7 @@ function draw() {
     drawBricks();
     drawBall();
     drawPaddle();
+    collisionDetection();
 
     if(y + dy > canvas.height || y + dy < 0) {
         dy = -dy;
@@ -133,23 +173,5 @@ function draw() {
     y += dy;
 }
 
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
 
-function keyDownHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight") {
-        pressRight = true;
-    }
-    else if(e.key == "Left" || e.key == "ArrowLeft") {
-        pressLeft = true;
-    }
-}
 
-function keyUpHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight") {
-        pressRight = false;
-    }
-    else if(e.key == "Left" || e.key == "ArrowLeft") {
-        pressLeft = false;
-    }
-}
